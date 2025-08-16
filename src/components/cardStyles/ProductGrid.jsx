@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState } from "react";
+import ProductModal from "../ProductModal";
 
 const products = [
   {
@@ -77,7 +78,7 @@ const products = [
       "https://www.allrecipes.com/thmb/8xwaWAHtl_QLij6D-G0Z4B1HDVA=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/10813-best-chocolate-chip-cookies-mfs-146-4x3-b108aceffa6043a1ac81c3c5a9b034c8.jpg",
     unitOptions: ["pcs"],
   },
-   {
+  {
     id: 8,
     name: "Mangoes",
     category: "Fruits",
@@ -90,128 +91,75 @@ const products = [
   },
 ];
 
-const BestSellerCard = ({ product }) => {
-  const [count, setCount] = React.useState(0);
-  const [unit, setUnit] = React.useState(
-    product.unitOptions ? product.unitOptions[0] : null
-  );
-
+const ProductCard = ({ product, onClick }) => {
   return (
-    <div className="bg-white border border-gray-200 rounded-2xl shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all p-4 flex flex-col">
-      {/* Image */}
-      <div className="flex justify-center h-36">
+    <div
+      onClick={() => onClick(product)}
+      className="group cursor-pointer flex flex-col items-center p-3 rounded-lg transition-all duration-300 hover:bg-green-50 hover:shadow-md"
+    >
+      {/* Circle Image (like categories) */}
+      <div className="w-28 h-28 rounded-full bg-white flex items-center justify-center shadow-sm group-hover:shadow-lg transform group-hover:scale-105 transition-all duration-300">
         <img
           src={product.image}
           alt={product.name}
-          className="h-full object-contain rounded-lg"
+          className="w-20 h-20 object-cover rounded-full"
         />
       </div>
 
       {/* Info */}
-      <div className="mt-3 flex-1">
-        <p className="text-gray-400 text-xs">{product.category}</p>
-        <p className="font-semibold text-base text-gray-800 truncate">
-          {product.name}
-        </p>
+      <p className="mt-2 text-sm sm:text-base font-semibold text-gray-800 truncate group-hover:text-green-600">
+        {product.name}
+      </p>
+      <p className="text-xs text-gray-500">{product.category}</p>
 
-        {/* Rating */}
-        <div className="flex items-center gap-0.5 mt-1">
-          {Array(5)
-            .fill("")
-            .map((_, i) => (
-              <span
-                key={i}
-                className={`text-sm ${
-                  product.rating > i ? "text-yellow-400" : "text-gray-300"
-                }`}
-              >
-                ★
-              </span>
-            ))}
-        </div>
-
-        {/* Price */}
-        <p className="text-indigo-600 font-bold text-lg mt-2">
-          ${product.offerPrice}{" "}
-          <span className="text-gray-400 line-through text-sm">
-            ${product.price}
-          </span>
-        </p>
-      </div>
-
-      {/* Quantity & Unit */}
-      <div className="mt-3 flex items-center justify-between gap-2">
-        {count === 0 ? (
-          <button
-            className="bg-indigo-100 text-indigo-600 text-sm px-3 py-1 rounded-md hover:bg-indigo-200 transition"
-            onClick={() => setCount(1)}
-          >
-            + Add
-          </button>
-        ) : (
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setCount((p) => Math.max(p - 1, 0))}
-              className="px-3 py-1 bg-gray-200 rounded text-sm"
-            >
-              -
-            </button>
-            <span className="text-sm">{count}</span>
-            <button
-              onClick={() => setCount((p) => p + 1)}
-              className="px-3 py-1 bg-gray-200 rounded text-sm"
-            >
-              +
-            </button>
-          </div>
-        )}
-
-        {product.unitOptions && (
-          <select
-            value={unit}
-            onChange={(e) => setUnit(e.target.value)}
-            className="border border-gray-300 rounded text-sm px-2 py-1"
-          >
-            {product.unitOptions.map((u) => (
-              <option key={u}>{u}</option>
-            ))}
-          </select>
-        )}
-      </div>
-
-      {/* Buy Now */}
-      {count > 0 && (
-        <button
-          onClick={() =>
-            alert(
-              `Added ${count} ${unit ? unit : "pcs"} of ${product.name} to cart`
-            )
-          }
-          className="mt-3 w-full bg-indigo-500 text-white text-sm py-2 rounded-md hover:bg-indigo-600 transition"
-        >
-          Buy Now
-        </button>
-      )}
+      {/* Price */}
+      <p className="mt-1 text-green-600 font-bold text-sm">
+        ${product.offerPrice}{" "}
+        <span className="text-gray-400 line-through text-xs">
+          ${product.price}
+        </span>
+      </p>
     </div>
   );
 };
 
 const ProductGrid = () => {
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleProductClick = (product) => {
+    setSelectedProduct(product);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedProduct(null);
+  };
+
   return (
-    <div className="px-4">
-      <h2 className="text-2xl font-bold text-gray-800 mb-6">
+    <div className="mt-12 px-4">
+      <h2 className="text-2xl md:text-3xl font-bold text-gray-900 tracking-tight mb-6">
         Our Best Seller Items
       </h2>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4">
         {products.map((p) => (
-          <BestSellerCard key={p.id} product={p} />
+          <ProductCard key={p.id} product={p} onClick={handleProductClick} />
         ))}
       </div>
+
+      {/* Modal */}
+      <ProductModal
+        product={selectedProduct}
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+      />
     </div>
   );
 };
 
 export default ProductGrid;
+
 
 
 
