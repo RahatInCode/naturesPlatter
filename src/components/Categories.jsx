@@ -21,7 +21,7 @@ export default function Categories() {
   return (
     <div className="mt-8">
       {/* Title */}
-      <p className="text-2xl md:text-3xl font-semibold text-gray-800">
+      <p className="text-2xl md:text-3xl font-semibold text-gray-800 ml-15">
         Categories
       </p>
 
